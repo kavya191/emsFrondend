@@ -1,0 +1,18 @@
+#home{
+    padding-top:70px ; 
+   /* padding-bottom: 500px;  */
+    background: rgb(2,0,36);
+background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(202,214,213,1) 0%, rgba(18,33,222,1) 62%, rgba(237,238,231,1) 100%, rgba(0,212,255,1) 100%);
+}
+#title{
+    
+        font-size: 50px;
+        background: -webkit-linear-gradient(#9b9595, hsl(0, 38%, 77%));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      
+}
+#c1{
+    
+    background: rgb(2,0,36);
+}
