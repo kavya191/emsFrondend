@@ -6,3 +6,7 @@ import { commonStructure } from "./commonStructure";
 export const adminloginApi=async(body)=>{
     return await commonStructure('POST',`${BASE_URL}/admin/login`,body)
 }
+
+export const addEmployee=async(body,header)=>{
+    return await commonStructure('POST',`${BASE_URL}/admin/add-employee`,body,header)
+}
