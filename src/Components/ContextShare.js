@@ -4,16 +4,23 @@ import { createContext } from 'react'
 
 //create context and export it
 export const registerContext=createContext()
-export const manageContext=createContext()
+//update context for update
+export const updateContext=createContext()
+
 function ContextShare({children}) {
     //create state for registercontext
     const [registerUpdate,setRegisterUpdate]=useState("")
-    const [employeeUpdate,setEmployeeUpdate]=useState([])
+    //create context for update employee context
+    const [updateStatus,setUpdateStatus]=useState("")
+  
   return (
     <div>
-        <registerContext.Provider value={{registerUpdate,setRegisterUpdate,employeeUpdate,setEmployeeUpdate}}>
+      <updateContext.Provider value={{updateStatus,setUpdateStatus}}>
+      <registerContext.Provider value={{registerUpdate,setRegisterUpdate}}>
             {children}
         </registerContext.Provider>
+      </updateContext.Provider>
+    
     </div>
   )
 }

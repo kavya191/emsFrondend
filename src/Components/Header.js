@@ -7,7 +7,7 @@ function Header() {
     <div className='w-100'>
         <Navbar  style={{backgroundColor:'#2e466e'}}>
         <Container >
-          <Navbar.Brand className='text-white fw-bold' href="#home">
+          <Navbar.Brand className='text-white fw-bold' href="">
             <img
               alt=""
               src="https://i.postimg.cc/y81kMxG8/Mitarbeiter.gif"

@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { adminloginApi } from '../services/allApis';
 import { ToastContainer, toast } from 'react-toastify';
-  import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Login() {
   //hook used for navigation
@@ -112,9 +112,15 @@ function Login() {
               <div className="d-grid pt-3 ">
                 <button type="button" className="btn text-white " style={{ backgroundColor: '#2e466e' }} 
                 onClick={handleSubmit}>
-                  Submit
+                  SignIn
                 </button>
               </div>
+              <p className="text-dark text-center">
+            Not a Member ?
+            <Link to={"/signup"} style={{ textDecoration: "none" }}>
+              Register
+            </Link>{" "}
+          </p>
 
             </form>
           </Col>

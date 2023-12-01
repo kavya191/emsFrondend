@@ -1,24 +1,19 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useContext, useEffect, useState} from "react";
 import { Container } from "react-bootstrap";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-// import Container from "react-bootstrap/esm/Container";
 
-import Alert from "react-bootstrap/Alert";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { addEmployee } from "../services/allApis";
-import { useNavigate } from "react-router-dom";
-import { registerContext } from "../Components/ContextShare";
+import {  getEmployeeSingle, updateEmployee } from "../services/allApis";
+import { useNavigate, useParams } from "react-router-dom";
+
 import AdminHeader from "../Components/AdminHeader";
-
-
-function Add() {
-  //access context use useContext hook
-  //destructure state from registerContext
-  const {registerUpdate,setRegisterUpdate} = useContext(registerContext);
-  console.log(registerUpdate);
-  //navigation
+import BASE_URL from "../services/base_url";
+import { updateContext } from "../Components/ContextShare";
+function Edit() {
+  
+ //navigation
   let navigate = useNavigate();
   //create state to hold inputs
   const [inputs, setInputs] = useState({
@@ -30,6 +25,18 @@ function Add() {
     status: "",
     location: "",
   });
+  //context for emplyee form edit
+  const {setUpdateStatus}=useContext(updateContext)
+  //function to get data of particular employee
+  const {id}=useParams()
+  const getEmployeeData=async()=>{
+    const result = await getEmployeeSingle(id)
+    setInputs(result?.data);
+  }
+  console.log(inputs);
+  useEffect(()=>{
+    getEmployeeData()
+  },[])
   //state to hold error messege from backend
   const [errorMsg, setErrorMsg] = useState("");
   //state for validation
@@ -38,39 +45,45 @@ function Add() {
   const [emailValid, setEmailValid] = useState(true);
   const [contactValid, setContactValid] = useState(true);
   const [locationValid, setLocationValid] = useState(true);
+
+ 
   //access inputdata
   const setData = (e) => {
     const { name, value } = e.target;
-    //fname validation
-    if (name == "fname") {
-      if (value.match(/^[a-zA-Z]+$/)) {
-        setFnameValid(true);
-        setInputs({ ...inputs, [name]: value });
-      } else {
-        setFnameValid(false); //<p>accepts characters only</p>
+       //email validation
+       if (name == "email") {
+        //match() method used to check
+        if (
+          value.match(
+            /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+          )
+        ) {
+          setEmailValid(true);
+          setInputs({ ...inputs, [name]: value });
+        } else {
+          setEmailValid(false); //<p className='text-danger'>* invalid email !</p>
+        }
       }
-    }
+    
     //lname validation
     if (name == "lname") {
-      if (value.match(/^[a-zA-Z]+$/)) {
+      if (value.match(/^[a-zA-Z]*$/)) {
         setLnameValid(true);
         setInputs({ ...inputs, [name]: value });
       } else {
         setLnameValid(false); //<p>accepts characters only</p>
       }
     }
-    //email validation
-    if (name == "email") {
-      //match() method used to check
-      if (
-        value.match(
-          /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-        )
-      ) {
-        setEmailValid(true);
+
+   
+ 
+     //fname validation
+     if (name == "fname") {
+      if (value.match(/^[a-zA-Z]*$/)) {
+        setFnameValid(true);
         setInputs({ ...inputs, [name]: value });
       } else {
-        setEmailValid(false); //<p className='text-danger'>* invalid email !</p>
+        setFnameValid(false); //<p>accepts characters only</p>
       }
     }
     //phn no validation
@@ -84,7 +97,7 @@ function Add() {
     }
     //location validation
     if (name == "location") {
-      if (value.match(/^[a-zA-Z0-9 ]+$/)) {
+      if (value.match(/^[a-zA-Z0-9 ]*$/)) {
         setLocationValid(true);
         setInputs({ ...inputs, [name]: value });
       } else {
@@ -114,7 +127,8 @@ function Add() {
   }, [image]);
   console.log(imgPreview);
   //handle submit
-  const handleAdd = async (e) => {
+  const handleEdit = async (e) => {
+    //to avoid refreshing
     e.preventDefault();
     //alert("button clicked")
     const { fname, lname, gender, status, email, location, mobile } = inputs;
@@ -132,8 +146,7 @@ function Add() {
       toast.error("please enter contact number ");
     } else if (gender == "") {
       toast.error("please enter gender");
-    } else if (image == "") {
-      toast.error("please choose image");
+    
     } else {
       //toast.success("all set")
       //header (the body contain file type content)
@@ -150,27 +163,12 @@ function Add() {
       data.append("location", location);
       data.append("gender", gender);
       data.append("email", email);
-      data.append("user_profile", image);
+      data.append("user_profile", image?image:inputs.profile);
       //api
-      const result = await addEmployee(data, headerConfig);
+      const result = await updateEmployee(id,data, headerConfig);
       console.log(result);
       if (result.status >= 200 && result.status < 300) {
-        //clear data from input state
-        setInputs({
-          ...inputs,
-          fname: "",
-          lname: "",
-          email: "",
-          mobile: "",
-          gender: "",
-          status: "",
-          location: "",
-        });
-        //reset image
-        setImage("");
-        //pass register employeee data to state inside registerContext
-        setRegisterUpdate(result.data)
-        console.log(registerUpdate);
+       setUpdateStatus(result.data)
         //redirection to employee manage page
          navigate("/manage");
       } else {
@@ -180,19 +178,10 @@ function Add() {
     }
     // console.log(inputs);
   };
-
   return (
     <div className="bg-white ">
+      <AdminHeader/>
       
-      <AdminHeader />
-      {/* show error alert while registering already existing employeee */}
-      {errorMsg ? (
-        <Alert variant={"danger"} dismissible onClose={() => setErrorMsg("")}>
-          {errorMsg}
-        </Alert>
-      ) : (
-        ""
-      )}
       <h1 className="text-center mt-5">Register Employee Details</h1>
 
       <Container>
@@ -202,7 +191,7 @@ function Add() {
               src={
                 imgPreview
                   ? imgPreview
-                  : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSucjZdDkDB9cH0OtpaW67OA6Gzulp6E-8eq3RZvypwE12zr1NpBv34pgUFtVeUPxcB0uU&usqp=CAU"
+                  : `${BASE_URL}/uploads/${inputs.profile}`
               }
               alt=""
               style={{ width: "200px", height: "200px", borderRadius: "100px" }}
@@ -219,6 +208,7 @@ function Add() {
                   FirstName
                 </label>
                 <input
+                  value={inputs.fname}
                   onChange={(e) => setData(e)}
                   type="text"
                   id="firstname"
@@ -243,6 +233,7 @@ function Add() {
                   Your Email
                 </label>
                 <input
+                  value={inputs.email}
                   onChange={(e) => {
                     setData(e);
                   }}
@@ -266,6 +257,7 @@ function Add() {
               <div>
                 <div class="flex items-center mb-2">
                   <input
+                    checked={inputs.gender=='male'?true:false}
                     onChange={(e) => {
                       setData(e);
                     }}
@@ -285,6 +277,7 @@ function Add() {
                 </div>
                 <div class="flex items-center">
                   <input
+                  checked={inputs.gender=='female'?true:false}
                     onChange={(e) => {
                       setData(e);
                     }}
@@ -336,6 +329,7 @@ function Add() {
                   Your Lastname
                 </label>
                 <input
+                value={inputs.lname}
                   onChange={(e) => {
                     setData(e);
                   }}
@@ -361,6 +355,7 @@ function Add() {
                   Your Contant No
                 </label>
                 <input
+                value={inputs.mobile}
                   onChange={(e) => {
                     setData(e);
                   }}
@@ -389,6 +384,7 @@ function Add() {
                   Employee Status
                 </label>
                 <select
+                  value={inputs.status}
                   name="status"
                   id="statusid"
                   onChange={(e) => {
@@ -434,6 +430,7 @@ function Add() {
                   Location
                 </label>
                 <input
+                value={inputs.location}
                   onChange={(e) => {
                     setData(e);
                   }}
@@ -472,13 +469,12 @@ function Add() {
             </label>
           </div> */}
           <button
-            onClick={(e) => handleAdd(e)}
+            onClick={(e) => handleEdit(e)}
             type="button"
-            class="text-black mb-5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            class="text-white mb-5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
             Submit
           </button>
-          
         </form>
       </Container>
       <ToastContainer
@@ -496,7 +492,7 @@ function Add() {
       {/* Same as */}
       <ToastContainer />
     </div>
-  );
+  )
 }
 
-export default Add;
+export default Edit

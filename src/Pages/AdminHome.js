@@ -4,9 +4,11 @@ import { Col, Container, Row } from 'react-bootstrap'
 
 import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
+import AdminHeader from '../Components/AdminHeader';
 function AdminHome() {
   return (
     <div>
+      <AdminHeader/>
       <Row id='home' >
         <Col lg={5}  >
           <h1 id='title' className='p-4'>Makes Employee <br /> Management Easy</h1>
